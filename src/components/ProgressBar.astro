@@ -1,0 +1,9 @@
+<div
+  class="fixed bottom-0 left-0 right-0 m-6 h-2.5 rounded-full bg-gray-200 dark:bg-gray-700"
+>
+  <div
+    x-bind:style="`width: ${(seconds / scenario.phases[phase].duration) * 100}%`"
+    class="h-2.5 rounded-full bg-blue-600"
+  >
+  </div>
+</div>

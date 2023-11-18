@@ -1,0 +1,10 @@
+---
+import CurrentScenario from "../components/CurrentScenario.astro";
+import { scenarios } from "../data/data";
+export const partial = true;
+
+const id = Number(Astro.url.searchParams.get("scenario"));
+const current = scenarios.find((scenario) => scenario.id === id);
+---
+
+<CurrentScenario scenarioName={current?.name || ""} />
