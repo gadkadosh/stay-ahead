@@ -14,13 +14,17 @@
     "@astrojs/check": "^0.3.1",
     "@astrojs/tailwind": "^5.0.2",
     "@astrojs/vercel": "^5.2.0",
+    "@libsql/client": "0.4.0-pre.1",
     "@types/alpinejs": "^3.0.0",
     "alpinejs": "^3.0.0",
     "astro": "^3.5.5",
+    "drizzle-orm": "^0.29.0",
     "tailwindcss": "^3.0.24",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
+    "@types/node": "^20.9.1",
+    "drizzle-kit": "^0.20.4",
     "prettier": "^3.1.0",
     "prettier-plugin-astro": "^0.12.2",
     "prettier-plugin-tailwindcss": "^0.5.7"

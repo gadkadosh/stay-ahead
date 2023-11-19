@@ -1,11 +1,14 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Sidebar from "../components/Sidebar.astro";
-import Timer from "../components/Timer.astro";
+import Layout from "@/layouts/Layout.astro";
+import Sidebar from "@/components/Sidebar.astro";
+import Timer from "@/components/Timer.astro";
+import { getScenarioWithPhases } from "@/data/db";
+
+const scenario = await getScenarioWithPhases(1);
 ---
 
 <Layout title="StayAhead">
-  <Sidebar />
+  <Sidebar scenario={scenario} />
   <main class="flex flex-grow flex-col p-4 text-center">
     <div>
       <h1
@@ -20,6 +23,6 @@ import Timer from "../components/Timer.astro";
       </p>
     </div>
 
-    <Timer />
+    <Timer scenario={scenario} />
   </main>
 </Layout>

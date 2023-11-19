@@ -1,61 +1,97 @@
 ---
-import ProgressBar from "../components/ProgressBar.astro";
+import type { InferSelectModel } from "drizzle-orm";
+import type { scenarios } from "@/data/schema";
 
-import { scenarios } from "../data/data";
+interface Props {
+  scenario: InferSelectModel<typeof scenarios>;
+}
 ---
 
 <div
-  x-data=`{ running: false,
+  x-data=`{
+        state: 'paused',
         seconds: 0,
         timer: null,
         startTimer() {
           this.timer = setInterval(() => { 
-            this.seconds += 0.5
-            if (this.seconds > this.scenario.phases[this.phase].duration) {
+            this.seconds += 1
+            if (this.seconds > this.scenario.phases[this.curPhaseIndex].duration) {
               this.seconds = 0
               if (this.scenario.phases.length - 1 > this.phase) {
                 this.phase += 1
               } else {
-                $dispatch("stayahead:stop")
+                $dispatch("stayahead:done")
               }
             }
-          }, 500)
+          }, 1000)
         },
         stopTimer() {
           clearInterval(this.timer)
         },
-        scenario: ${JSON.stringify(scenarios[0])},
-        phase: 0
+        scenario: ${JSON.stringify(Astro.props.scenario)},
+        curPhaseIndex: 0
       }`
-  x-on:stayahead:start="running = true; startTimer()"
-  x-on:stayahead:stop="running = false; stopTimer()"
+  x-on:stayahead:start="state = 'running'; startTimer()"
+  x-on:stayahead:stop="state = 'paused'; stopTimer()"
+  x-on:stayahead:done="state = 'done'; stopTimer(); curPhaseIndex = 0"
+  id="timer"
+  hx-swap-oob="outerHTML:#timer"
 >
   <p
-    class="mb-6 text-xl font-normal text-gray-400 sm:px-16 lg:text-2xl xl:px-48"
+    class="mb-6 text-xl font-normal text-gray-500 sm:px-16 lg:text-2xl xl:px-48"
+    x-text="state !== 'done' ? scenario.phases[curPhaseIndex].name : 'DONE'"
   >
-    Phase: <span class="text-white" x-text="scenario.phases[phase].name"></span>
   </p>
-  <div class="mt-8 flex items-center justify-center">
+  <div class="mt-8 flex items-center justify-center gap-4">
     <button
       class="mb-2 me-2 w-32 rounded-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-      x-on:click="if (phase > 0) phase = phase - 1; seconds = 0"
-      x-bind:disabled="phase <= 0"
+      x-on:click="if (curPhaseIndex > 0) curPhaseIndex -= 1; seconds = 0"
+      x-bind:disabled="curPhaseIndex <= 0"
     >
       Previous
     </button>
-    <button
-      type="button"
-      class="mb-2 me-2 h-32 w-32 rounded-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-5 py-2.5 text-center text-lg font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-      x-on:click="$dispatch(running ? 'stayahead:stop' : 'stayahead:start')"
-      x-text="running ? 'STOP' : 'START'"></button>
+
+    <div
+      class="relative flex items-center justify-center"
+      x-data="{ circumference: 2 * 22 / 7 * 100 }"
+    >
+      <svg class="h-64 w-64 -rotate-90 transform">
+        <circle
+          cx="128"
+          cy="128"
+          r="100"
+          stroke="currentColor"
+          stroke-width="30"
+          fill="transparent"
+          class="text-gray-700"></circle>
+
+        <circle
+          cx="128"
+          cy="128"
+          r="100"
+          stroke="currentColor"
+          stroke-width="30"
+          fill="transparent"
+          :stroke-dasharray="circumference"
+          :stroke-dashoffset="circumference - (seconds / scenario.phases[curPhaseIndex].duration) * circumference"
+          class="text-blue-500 transition-all duration-1000 ease-linear"
+        ></circle>
+      </svg>
+      <button
+        type="button"
+        class="absolute inset-[30px] rounded-full bg-blue-500 px-5 py-2.5 text-center text-lg font-medium text-white transition-colors hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+        :class="state === 'running' ? 'bg-green-500 hover:bg-green-400' : 'bg-blue-500'"
+        x-on:click="$dispatch(state === 'running' ? 'stayahead:stop' : 'stayahead:start')"
+        x-text="state === 'running' ? 'STOP' : 'START'"></button>
+    </div>
+
     <button
       type="button"
       class="mb-2 me-2 w-32 rounded-lg bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-br focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-      x-on:click="if (phase < scenario.phases.length - 1) phase = phase + 1; seconds = 0"
-      x-bind:disabled="phase >= scenario.phases.length - 1"
+      x-on:click="if (curPhaseIndex < scenario.phases.length - 1) curPhaseIndex += 1; seconds = 0"
+      :disabled="curPhaseIndex >= scenario.phases.length - 1"
     >
       Next
     </button>
   </div>
-  <ProgressBar />
 </div>

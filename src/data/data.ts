@@ -4,7 +4,7 @@ interface Phase {
   duration: number;
 }
 
-interface Scenario {
+export interface Scenario {
   id: number;
   name: string;
   phases: Phase[];

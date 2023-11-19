@@ -1,0 +1,12 @@
+---
+import CurrentScenario from "@/components/CurrentScenario.astro";
+import Timer from "@/components/Timer.astro";
+import { getScenarioWithPhases } from "@/data/db";
+export const partial = true;
+
+const id = Number(Astro.url.searchParams.get("scenario"));
+const scenario = await getScenarioWithPhases(id);
+---
+
+<CurrentScenario scenario={scenario} />
+<Timer scenario={scenario} />

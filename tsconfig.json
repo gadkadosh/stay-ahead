@@ -1,3 +1,10 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
 }

@@ -1,9 +1,26 @@
 ---
+import type { ScenarioWithPhases } from "@/data/types";
+
 interface Props {
-  scenarioName: string;
+  scenario: ScenarioWithPhases;
 }
 
-const { scenarioName } = Astro.props;
+const { scenario } = Astro.props;
 ---
 
-Current Scenario: {scenarioName}
+<div>
+  <div class="mt-6 flex justify-between">
+    <p>Current Scenario: {scenario.name}</p>
+    <a href={`/scenarios/${scenario.id}/edit`}>Edit</a>
+  </div>
+  <ol class="mt-4">
+    {
+      scenario.phases.map((phase) => (
+        <li class="flex justify-between">
+          <span>{phase.name}</span>
+          <span>{phase.duration ? `${phase.duration}s` : "Manual"}</span>
+        </li>
+      ))
+    }
+  </ol>
+</div>
