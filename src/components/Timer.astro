@@ -14,16 +14,16 @@ interface Props {
         timer: null,
         startTimer() {
           this.timer = setInterval(() => { 
-            this.seconds += 1
+            this.seconds += 0.1
             if (this.seconds > this.scenario.phases[this.curPhaseIndex].duration) {
               this.seconds = 0
-              if (this.scenario.phases.length - 1 > this.phase) {
-                this.phase += 1
+              if (this.scenario.phases.length - 1 > this.curPhaseIndex) {
+                this.curPhaseIndex += 1
               } else {
                 $dispatch("stayahead:done")
               }
             }
-          }, 1000)
+          }, 100)
         },
         stopTimer() {
           clearInterval(this.timer)
@@ -38,7 +38,7 @@ interface Props {
   hx-swap-oob="outerHTML:#timer"
 >
   <p
-    class="mb-6 text-xl font-normal text-gray-500 sm:px-16 lg:text-2xl xl:px-48"
+    class="my-6 text-xl font-normal text-gray-500 sm:px-16 lg:text-3xl xl:px-48"
     x-text="state !== 'done' ? scenario.phases[curPhaseIndex].name : 'DONE'"
   >
   </p>
@@ -74,7 +74,8 @@ interface Props {
           fill="transparent"
           :stroke-dasharray="circumference"
           :stroke-dashoffset="circumference - (seconds / scenario.phases[curPhaseIndex].duration) * circumference"
-          class="text-blue-500 transition-all duration-1000 ease-linear"
+          class="text-blue-500"
+          :class="{'transition-all duration-100 ease-linear': state === 'running'}"
         ></circle>
       </svg>
       <button

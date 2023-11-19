@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import { eq } from "drizzle-orm";
 import * as schema from "./schema";
-import type { ScenarioWithPhases } from "./types";
+import type { PhaseInsert, ScenarioWithPhases } from "./types";
 
 const client = createClient({
   url: import.meta.env.DATABASE_URL,
@@ -17,6 +17,7 @@ export async function getScenarioWithPhases(id: number) {
       id: schema.scenarios.id,
       name: schema.scenarios.name,
       phases: {
+        id: schema.phases.id,
         name: schema.phases.name,
         duration: schema.phases.duration,
       },
@@ -50,4 +51,40 @@ export async function getScenarios() {
       name: schema.scenarios.name,
     })
     .from(schema.scenarios);
+}
+
+export async function getPhase(id: number) {
+  return (
+    await db
+      .select({
+        id: schema.phases.id,
+        name: schema.phases.name,
+        duration: schema.phases.duration,
+      })
+      .from(schema.phases)
+      .where(eq(schema.phases.id, id))
+      .limit(1)
+  )[0];
+}
+
+export async function updatePhase({
+  id,
+  duration,
+}: {
+  id: number;
+  duration: number;
+}) {
+  return (
+    await db
+      .update(schema.phases)
+      .set({
+        duration,
+      })
+      .where(eq(schema.phases.id, id))
+      .returning({
+        id: schema.phases.id,
+        name: schema.phases.name,
+        duration: schema.phases.duration,
+      })
+  )[0];
 }

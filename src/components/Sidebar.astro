@@ -76,6 +76,7 @@ const allScenarios = await getScenarios();
       hx-get="/api/scenarios"
       hx-swap="outerHTML"
       hx-target="next"
+      hx-trigger="change, updateScenario from:body"
     >
       {allScenarios.map((s) => <option value={s.id}>{s.name}</option>)}
     </select>
