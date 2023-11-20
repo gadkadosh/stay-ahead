@@ -9,8 +9,8 @@ interface Props {
 const { scenario } = Astro.props;
 ---
 
-<div>
-  <ol class="mt-4">
-    {scenario.phases.map((phase) => <Phase phase={phase} />)}
-  </ol>
-</div>
+<ol
+  class="htmx-request:opacity-30 htmx-request:pointer-events-none space-y-1 py-6"
+>
+  {scenario.phases.map((phase) => <Phase phase={phase} />)}
+</ol>
