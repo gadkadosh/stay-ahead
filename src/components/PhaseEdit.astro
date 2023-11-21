@@ -12,7 +12,6 @@ const { phase, order } = Astro.props;
 <li
   class="group flex items-center gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-300 dark:hover:bg-slate-600"
   data-order={order}
-  hx-target="this"
   x-data=`{ duration: ${phase.duration} }`
   x-ref="draggable"
   x-on:dragstart="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.order);"
