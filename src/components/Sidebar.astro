@@ -7,6 +7,7 @@ interface Props {
   scenario: ScenarioWithPhases;
 }
 
+const { scenario } = Astro.props;
 const allScenarios = await getScenarios();
 ---
 
@@ -78,6 +79,6 @@ const allScenarios = await getScenarios();
       {allScenarios.map((s) => <option value={s.id}>{s.name}</option>)}
     </select>
 
-    <CurrentScenario scenario={Astro.props.scenario} />
+    <CurrentScenario scenario={scenario} />
   </div>
 </div>

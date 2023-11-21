@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import { eq } from "drizzle-orm";
 import * as schema from "./schema";
-import type { PhaseInsert, ScenarioWithPhases } from "./types";
+import type { ScenarioWithPhases } from "./types";
 
 const client = createClient({
   url: import.meta.env.DATABASE_URL,

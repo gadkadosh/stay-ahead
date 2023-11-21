@@ -1,0 +1,33 @@
+---
+export const partial = true;
+import PhaseEdit from "@/components/PhaseEdit.astro";
+import { getScenarioWithPhases } from "@/data/db";
+
+const id = Number(Astro.params.id);
+const scenario = await getScenarioWithPhases(id);
+---
+
+<form hx-swap="outerHTML" hx-put=`/api/scenarios/${id}`>
+  <ol
+    class="htmx-request:opacity-30 htmx-request:pointer-events-none mt-6 space-y-1"
+    hx-put=`/api/scenarios/${scenario.id}`
+  >
+    {scenario.phases.map((phase, i) => <PhaseEdit phase={phase} order={i} />)}
+  </ol>
+
+  <div class="flex justify-end gap-2">
+    <button
+      type="submit"
+      class="mt-2 flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    >
+      Save
+    </button>
+    <button
+      type="button"
+      class="mt-2 flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+      hx-get=`/api/scenarios/${id}`
+    >
+      Cancel
+    </button>
+  </div>
+</form>

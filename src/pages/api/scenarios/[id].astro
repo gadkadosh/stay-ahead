@@ -1,4 +1,6 @@
 ---
+export const partial = true;
+
 import CurrentScenario from "@/components/CurrentScenario.astro";
 import { getScenarioWithPhases } from "@/data/db";
 
@@ -7,6 +9,7 @@ const scenario = await getScenarioWithPhases(id);
 
 if (Astro.request.method === "PUT") {
   const data = await Astro.request.formData();
+  console.log("data", data);
   const from = data.get("from") as unknown as number;
   const to = data.get("to") as unknown as number;
 

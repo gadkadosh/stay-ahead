@@ -9,12 +9,18 @@ interface Props {
 const { scenario } = Astro.props;
 ---
 
-<ol
-  class="htmx-request:opacity-30 htmx-request:pointer-events-none space-y-1 py-6"
-  hx-put=`/api/scenarios/${scenario.id}`
-  hx-trigger="stayahead:reorderscenario"
-  hx-vals="js:{from: event.detail?.from, to: event.detail?.to}"
-  hx-swap="outerHTML"
->
-  {scenario.phases.map((phase, i) => <Phase phase={phase} order={i} />)}
-</ol>
+<div hx-target="this">
+  <ol
+    class="htmx-request:opacity-30 htmx-request:pointer-events-none mt-6 space-y-1"
+  >
+    {scenario.phases.map((phase, i) => <Phase phase={phase} order={i} />)}
+  </ol>
+
+  <button
+    type="button"
+    class="ml-auto mt-2 flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    hx-get=`/api/scenarios/${scenario.id}/edit`
+  >
+    Edit
+  </button>
+</div>

@@ -1,0 +1,92 @@
+---
+import type { Phase } from "@/data/types";
+
+interface Props {
+  phase: Phase;
+  order: number;
+}
+
+const { phase, order } = Astro.props;
+---
+
+<li
+  class="group flex items-center gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-300 dark:hover:bg-slate-600"
+  data-order={order}
+  hx-target="this"
+  x-data=`{ duration: ${phase.duration} }`
+  x-ref="draggable"
+  x-on:dragstart="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.order);"
+  x-on:dragover.prevent=""
+  x-on:drop.prevent="const draggedOrder = event.dataTransfer.getData('text/plain'); if(draggedOrder !== $el.dataset.order);"
+>
+  <span>{phase.name}</span>
+
+  <div class="ml-auto flex items-center rounded-lg">
+    <button
+      type="button"
+      class="inline-flex h-6 w-6 items-center justify-center gap-x-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+      x-on:click="if (duration > 0) duration--"
+    >
+      <svg
+        class="h-3.5 w-3.5 flex-shrink-0"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"><path d="M5 12h14"></path></svg
+      >
+    </button>
+    <input
+      class="w-8 border-0 bg-transparent p-0 text-center focus:ring-0"
+      name=`duration:${phase.id}`
+      x-model="duration"
+      x-on:keydown.down="if (duration > 0) duration--"
+      x-on:keydown.up="duration++"
+    />
+    <button
+      type="button"
+      class="inline-flex h-6 w-6 items-center justify-center gap-x-2 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-700 dark:bg-slate-900 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+      x-on:click="duration++"
+    >
+      <svg
+        class="h-3.5 w-3.5 flex-shrink-0"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path d="M5 12h14"></path><path d="M12 5v14"></path></svg
+      >
+    </button>
+  </div>
+
+  <button
+    class="text-gray-400"
+    x-on:mousedown="$refs.draggable.draggable = true"
+    x-on:mouseup="$refs.draggable.draggable = false"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    >
+      <line x1="3" x2="21" y1="12" y2="12"></line>
+      <line x1="3" x2="21" y1="6" y2="6"></line>
+      <line x1="3" x2="21" y1="18" y2="18"></line>
+    </svg>
+  </button>
+</li>
