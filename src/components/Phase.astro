@@ -3,15 +3,23 @@ import type { Phase } from "@/data/types";
 
 interface Props {
   phase: Phase;
+  order: number;
 }
 
-const phase = Astro.props.phase;
+const { phase, order } = Astro.props;
 ---
 
 <li
-  class="group flex justify-between gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-200 dark:hover:bg-slate-700"
+  class="group flex justify-between gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-300 dark:hover:bg-slate-600"
+  data-order={order}
   hx-target="this"
   x-data=`{ duration: ${phase.duration} }`
+  draggable="true"
+  x-on:dragstart="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.order);"
+  x-on:dragover.prevent=""
+  x-on:click="$dispatch('stayahead:changephase', { phaseIdx: +$el.dataset.order })"
+  :class=`${order} === $store.curPhase && 'bg-slate-200 dark:bg-slate-700'`
+  x-on:drop.prevent="const draggedOrder = event.dataTransfer.getData('text/plain'); if(draggedOrder !== $el.dataset.order) $dispatch('stayahead:reorderscenario', {from: draggedOrder, to: $el.dataset.order})"
 >
   <span>{phase.name}</span>
   <div class="opacity-0 group-hover:opacity-100">
@@ -25,7 +33,7 @@ const phase = Astro.props.phase;
       min="0"
       max="120"
       name="duration"
-      class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-300 accent-green-700 hover:accent-green-700 active:accent-green-800 dark:bg-gray-800"
+      class="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-400 accent-green-700 hover:accent-green-700 active:accent-green-800 dark:bg-gray-800"
       id="customRange1"
       x-model="duration"
       hx-put={`/api/phases/${phase.id}`}

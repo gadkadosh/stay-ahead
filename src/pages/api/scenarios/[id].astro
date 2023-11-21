@@ -1,0 +1,17 @@
+---
+import CurrentScenario from "@/components/CurrentScenario.astro";
+import { getScenarioWithPhases } from "@/data/db";
+
+const id = Number(Astro.params.id);
+const scenario = await getScenarioWithPhases(id);
+
+if (Astro.request.method === "PUT") {
+  const data = await Astro.request.formData();
+  const from = data.get("from") as unknown as number;
+  const to = data.get("to") as unknown as number;
+
+  scenario.phases.splice(to, 0, scenario.phases.splice(from, 1)[0]);
+}
+---
+
+<CurrentScenario scenario={scenario} />

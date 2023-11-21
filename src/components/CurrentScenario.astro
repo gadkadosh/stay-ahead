@@ -11,6 +11,10 @@ const { scenario } = Astro.props;
 
 <ol
   class="htmx-request:opacity-30 htmx-request:pointer-events-none space-y-1 py-6"
+  hx-put=`/api/scenarios/${scenario.id}`
+  hx-trigger="stayahead:reorderscenario"
+  hx-vals="js:{from: event.detail?.from, to: event.detail?.to}"
+  hx-swap="outerHTML"
 >
-  {scenario.phases.map((phase) => <Phase phase={phase} />)}
+  {scenario.phases.map((phase, i) => <Phase phase={phase} order={i} />)}
 </ol>

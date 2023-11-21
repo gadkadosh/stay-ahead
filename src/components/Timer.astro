@@ -5,50 +5,73 @@ import type { scenarios } from "@/data/schema";
 interface Props {
   scenario: InferSelectModel<typeof scenarios>;
 }
+
+const { scenario } = Astro.props;
 ---
 
 <div
   x-data=`{
-        state: 'paused',
-        seconds: 0,
-        timer: null,
-        startTimer() {
-          this.timer = setInterval(() => { 
-            this.seconds += 0.1
-            if (this.seconds > this.scenario.phases[this.curPhaseIndex].duration) {
-              this.seconds = 0
-              if (this.scenario.phases.length - 1 > this.curPhaseIndex) {
-                this.curPhaseIndex += 1
-              } else {
-                $dispatch("stayahead:done")
-              }
+      scenario: ${JSON.stringify(scenario)},
+      state: "paused",
+      seconds: 0,
+      timer: null,
+      startTimer() {
+        this.timer = setInterval(() => {
+          if (this.scenario.phases[$store.curPhase].duration === 0) {
+            console.log("MANUAL")
+            // clearInterval(this.timer);
+          } else {
+            this.seconds += 0.1;
+          }
+          if (
+            this.seconds > this.scenario.phases[$store.curPhase].duration
+          ) {
+            this.seconds = 0;
+            if (this.scenario.phases.length - 1 > $store.curPhase) {
+              this.$dispatch("stayahead:changephase", {
+                phaseIdx: ++$store.curPhase,
+              });
+            } else {
+              this.$dispatch("stayahead:done");
+              this.$dispatch("stayahead:changephase", { phaseIdx: 0 });
             }
-          }, 100)
-        },
-        stopTimer() {
-          clearInterval(this.timer)
-        },
-        scenario: ${JSON.stringify(Astro.props.scenario)},
-        curPhaseIndex: 0
-      }`
+          }
+        }, 100);
+      },
+    }`
   x-on:stayahead:start="state = 'running'; startTimer()"
-  x-on:stayahead:stop="state = 'paused'; stopTimer()"
-  x-on:stayahead:done="state = 'done'; stopTimer(); curPhaseIndex = 0"
+  x-on:stayahead:stop="state = 'paused'; clearInterval(timer)"
+  x-on:stayahead:done="state = 'done'; clearInterval(timer)"
+  x-on:stayahead:changephase.window="$store.curPhase = event.detail.phaseIdx; seconds = 0"
   id="timer"
   hx-swap-oob="outerHTML:#timer"
 >
   <p
-    class="my-6 text-xl font-normal text-gray-500 sm:px-16 lg:text-3xl xl:px-48"
-    x-text="state !== 'done' ? scenario.phases[curPhaseIndex].name : 'DONE'"
+    class="my-4 text-xl font-normal text-gray-500 sm:px-16 lg:text-3xl xl:px-48"
+    x-text="state !== 'done' ? scenario.phases[$store.curPhase].name : 'DONE'"
   >
   </p>
-  <div class="mt-8 flex items-center justify-center gap-4">
+  <div class="flex items-center justify-center gap-4">
     <button
-      class="mb-2 me-2 w-32 rounded-md bg-blue-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-      x-on:click="if (curPhaseIndex > 0) curPhaseIndex -= 1; seconds = 0"
-      x-bind:disabled="curPhaseIndex <= 0"
+      class="flex justify-center rounded-md bg-blue-500 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+      x-on:click="if ($store.curPhase > 0) $dispatch('stayahead:changephase', { phaseIdx: --$store.curPhase })"
+      x-bind:disabled="$store.curPhase <= 0"
     >
-      Previous
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        class="main-grid-item-icon"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      >
+        <line x1="19" x2="5" y1="12" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
     </button>
 
     <div
@@ -64,7 +87,6 @@ interface Props {
           stroke-width="30"
           fill="transparent"
           class="text-gray-700"></circle>
-
         <circle
           cx="128"
           cy="128"
@@ -73,7 +95,7 @@ interface Props {
           stroke-width="30"
           fill="transparent"
           :stroke-dasharray="circumference"
-          :stroke-dashoffset="circumference - (seconds / scenario.phases[curPhaseIndex].duration) * circumference"
+          :stroke-dashoffset="circumference - (seconds / scenario.phases[$store.curPhase].duration) * circumference"
           class="text-blue-500"
           :class="{'transition-all duration-100 ease-linear': state === 'running'}"
         ></circle>
@@ -88,11 +110,41 @@ interface Props {
 
     <button
       type="button"
-      class="mb-2 me-2 w-32 rounded-md bg-blue-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
-      x-on:click="if (curPhaseIndex < scenario.phases.length - 1) curPhaseIndex += 1; seconds = 0"
-      :disabled="curPhaseIndex >= scenario.phases.length - 1"
+      class="rounded-md bg-blue-500 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+      x-on:click="if ($store.curPhase < scenario.phases.length - 1) $dispatch('stayahead:changephase', { phaseIdx: ++$store.curPhase })"
+      :disabled="$store.curPhase >= scenario.phases.length - 1"
     >
-      Next
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        class="main-grid-item-icon"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      >
+        <line x1="5" x2="19" y1="12" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
     </button>
   </div>
+  <p
+    class="mt-2 text-sm font-normal text-gray-500 dark:text-gray-600 sm:px-16 lg:text-base xl:px-48"
+    :class="scenario.phases[$store.curPhase].duration !== 0 && 'opacity-0'"
+  >
+    Manually advance to the next phase
+  </p>
 </div>
+
+<script
+  define:vars={{ scenario }}
+  id="timer-script"
+  hx-swap-oob="outerHTML:#timer-script"
+>
+  document.addEventListener("alpine:initializing", () => {
+    Alpine.store("curPhase", 0);
+  });
+</script>
