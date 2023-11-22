@@ -7,18 +7,37 @@ import { getScenarioWithPhases, updatePhase } from "@/data/db";
 const id = Number(Astro.params.id);
 const scenario = await getScenarioWithPhases(id);
 
+function parseData(data: FormData) {
+  return Array.from(data).reduce((acc, cur, i) => {
+    if (i % 2 === 0) {
+      const id = cur[0].split(":")[1];
+      const name = cur[1];
+      return [...acc, { id: Number(id), name }];
+    }
+    const duration = cur[1];
+
+    acc[acc.length - 1].duration = Number(duration);
+
+    return acc;
+  }, [] as any);
+}
+
 if (Astro.request.method === "PUT") {
   const data = await Astro.request.formData();
 
-  const updated = await Promise.all(
-    Array.from(data).map((item) => {
-      const id = Number(item[0].split(":")[1]);
-      const duration = Number(item[1]);
-      return updatePhase({ id, duration });
-    }),
-  );
+  try {
+    const updated = await Promise.all(
+      Array.from(data).map((item) => {
+        const id = Number(item[0].split(":")[1]);
+        const duration = Number(item[1]);
+        return updatePhase({ id, duration });
+      }),
+    );
 
-  scenario.phases = updated;
+    scenario.phases = updated;
+  } catch (e) {
+    console.error(e);
+  }
 }
 ---
 
