@@ -3,20 +3,23 @@ import type { Phase } from "@/data/types";
 
 interface Props {
   phase: Phase;
-  order: number;
 }
 
-const { phase, order } = Astro.props;
+const { phase } = Astro.props;
 ---
 
 <li
   class="group flex items-center gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-300 dark:hover:bg-slate-600"
-  data-order={order}
-  x-data=`{ duration: ${phase.duration} }`
+  data-id={phase.id}
+  x-data=`{ duration: ${phase.duration}, dragging: false }`
   x-ref="draggable"
-  x-on:dragstart="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.order);"
+  x-on:dragstart.self="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.id); dragging = true"
+  x-on:dragend.self="dragging = false"
   x-on:dragover.prevent=""
-  x-on:drop.prevent="const draggedOrder = event.dataTransfer.getData('text/plain'); if(draggedOrder !== $el.dataset.order);"
+  x-on:dragenter="event.currentTarget.classList.add('bg-yellow-100')"
+  x-on:dragleave.self="event.currentTarget.classList.remove('bg-yellow-100')"
+  x-on:drop="event.currentTarget.classList.remove('bg-yellow-100'); event.currentTarget.setAttribute('draggable', 'false'); const data = event.dataTransfer.getData('text/plain'); if(data !== $el.dataset.id) { const dragged = $el.parentNode.querySelector(`li[data-id='${data}']`); $el.compareDocumentPosition(dragged) === 2 ? $el.after(dragged) : $el.before(dragged); }"
+  :class="dragging && 'opacity-30'"
 >
   <span>{phase.name}</span>
 

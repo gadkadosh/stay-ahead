@@ -11,7 +11,7 @@ const scenario = await getScenarioWithPhases(id);
   <ol
     class="htmx-request:opacity-30 htmx-request:pointer-events-none mt-6 space-y-1"
   >
-    {scenario.phases.map((phase, i) => <PhaseEdit phase={phase} order={i} />)}
+    {scenario.phases.map((phase) => <PhaseEdit phase={phase} />)}
   </ol>
 
   <div class="flex gap-2">
