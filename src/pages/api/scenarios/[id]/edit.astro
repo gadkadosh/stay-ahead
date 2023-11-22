@@ -9,6 +9,7 @@ const scenario = await getScenarioWithPhases(id);
 
 <form hx-swap="outerHTML" hx-put=`/api/scenarios/${id}`>
   <ol
+    id="edit-list"
     class="htmx-request:opacity-30 htmx-request:pointer-events-none mt-6 space-y-1"
   >
     {scenario.phases.map((phase) => <PhaseEdit phase={phase} />)}
@@ -18,6 +19,9 @@ const scenario = await getScenarioWithPhases(id);
     <button
       type="button"
       class="mt-2 flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+      hx-get="/api/phases/add"
+      hx-target="#edit-list"
+      hx-swap="beforeend"
     >
       Add phase
     </button>

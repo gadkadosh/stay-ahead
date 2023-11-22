@@ -35,6 +35,7 @@ if (Astro.request.method === "PUT") {
     );
 
     scenario.phases = updated;
+    Astro.response.headers.set("HX-Trigger", "updateScenario");
   } catch (e) {
     console.error(e);
   }
