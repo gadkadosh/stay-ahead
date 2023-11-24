@@ -1,0 +1,16 @@
+---
+export const partial = true;
+
+import ScenariosList from "@/components/ScenariosList.astro";
+import { createScenario } from "@/data/db";
+
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  const name = data.get("name");
+  if (typeof name === "string" && name.trim()) {
+    await createScenario(name.trim());
+  }
+}
+---
+
+<ScenariosList />

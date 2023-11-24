@@ -1,0 +1,29 @@
+---
+import { getScenarios } from "@/data/db";
+
+const allScenarios = await getScenarios();
+---
+
+<div class="mt-8 flex items-center gap-2">
+  <label for="scenario" class="sr-only">Scenarios</label>
+  <select
+    id="scenarios"
+    name="scenario"
+    class="h-8 w-full dark:bg-slate-800"
+    hx-get="/api/scenarios"
+    hx-swap="outerHTML"
+    hx-target="next div"
+    hx-trigger="change, updateScenario from:body"
+  >
+    {allScenarios.map((s) => <option value={s.id}>{s.name}</option>)}
+  </select>
+
+  <button
+    type="button"
+    class="flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+    hx-get="/api/scenarios/new"
+    hx-target="closest div"
+  >
+    New
+  </button>
+</div>

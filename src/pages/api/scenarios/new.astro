@@ -1,0 +1,22 @@
+---
+export const partial = true;
+---
+
+<form
+  class="flex w-full items-center gap-2"
+  hx-post="/api/scenarios/list"
+  hx-target="closest div"
+  hx-swap="outerHTML"
+>
+  <input
+    name="name"
+    class="w-full shrink rounded border border-gray-500 bg-transparent"
+    autofocus
+  />
+
+  <button
+    class="flex h-8 items-center justify-center rounded-lg bg-transparent px-2 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+  >
+    Save
+  </button>
+</form>

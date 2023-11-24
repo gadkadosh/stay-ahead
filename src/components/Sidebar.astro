@@ -1,14 +1,13 @@
 ---
-import { getScenarios } from "@/data/db";
 import type { ScenarioWithPhases } from "@/data/types";
 import CurrentScenario from "./CurrentScenario.astro";
+import ScenariosList from "./ScenariosList.astro";
 
 interface Props {
   scenario: ScenarioWithPhases;
 }
 
 const { scenario } = Astro.props;
-const allScenarios = await getScenarios();
 ---
 
 <!-- drawer init and toggle -->
@@ -65,19 +64,7 @@ const allScenarios = await getScenarios();
       <span class="sr-only">Close menu</span>
     </button>
 
-    <label for="scenario" class="sr-only">Scenarios</label>
-    <select
-      id="scenarios"
-      name="scenario"
-      class="mt-8 h-8 w-full dark:bg-slate-800"
-      hx-get="/api/scenarios"
-      hx-swap="outerHTML"
-      hx-target="next"
-      hx-trigger="change, updateScenario from:body"
-      hx-indicator="next"
-    >
-      {allScenarios.map((s) => <option value={s.id}>{s.name}</option>)}
-    </select>
+    <ScenariosList />
 
     <CurrentScenario scenario={scenario} />
   </div>

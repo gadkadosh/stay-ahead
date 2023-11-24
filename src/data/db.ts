@@ -72,6 +72,7 @@ export async function upsertPhases(
 }
 
 export async function deletePhases(scenarioId: number, exclude: number[]) {
+  if (exclude.length === 0) return;
   await db
     .delete(schema.phases)
     .where(
@@ -80,4 +81,10 @@ export async function deletePhases(scenarioId: number, exclude: number[]) {
         eq(schema.phases.scenarioId, scenarioId),
       ),
     );
+}
+
+export async function createScenario(name: string) {
+  await db.insert(schema.scenarios).values({
+    name,
+  });
 }
