@@ -2,42 +2,48 @@
 export const partial = true;
 
 import CurrentScenario from "@/components/CurrentScenario.astro";
-import { getScenarioWithPhases, updatePhase } from "@/data/db";
+import { getScenarioWithPhases, upsertPhases, deletePhases } from "@/data/db";
+import type { PhaseInsert } from "@/data/types";
 
 const id = Number(Astro.params.id);
 const scenario = await getScenarioWithPhases(id);
 
 function parseData(data: FormData) {
-  return Array.from(data).reduce((acc, cur, i) => {
+  return Array.from(data).reduce<PhaseInsert[]>((acc, cur, i) => {
     if (i % 2 === 0) {
-      const id = cur[0].split(":")[1];
-      const name = cur[1];
-      return [...acc, { id: Number(id), name }];
+      const phaseId = cur[0].split(":")[0];
+      const name = cur[1] as string;
+      return [
+        ...acc,
+        {
+          id: phaseId.startsWith("new") ? undefined : Number(phaseId),
+          name,
+          position: i / 2,
+          scenarioId: Number(id),
+        } as PhaseInsert,
+      ];
     }
-    const duration = cur[1];
+    const duration = cur[1] as string;
 
     acc[acc.length - 1].duration = Number(duration);
 
     return acc;
-  }, [] as any);
+  }, []);
 }
 
-if (Astro.request.method === "PUT") {
+if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
 
-  try {
-    const updated = await Promise.all(
-      Array.from(data).map((item) => {
-        const id = Number(item[0].split(":")[1]);
-        const duration = Number(item[1]);
-        return updatePhase({ id, duration });
-      }),
-    );
+  const parsed = parseData(data);
 
+  if (parsed.length > 0) {
+    await deletePhases(
+      id,
+      parsed.filter((p) => p.id).map((p) => p.id as number),
+    );
+    const updated = await upsertPhases(parsed);
     scenario.phases = updated;
     Astro.response.headers.set("HX-Trigger", "updateScenario");
-  } catch (e) {
-    console.error(e);
   }
 }
 ---

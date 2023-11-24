@@ -2,15 +2,16 @@
 import type { Phase } from "@/data/types";
 
 interface Props {
-  phase?: Phase;
+  phase?: Phase | null;
 }
 
 const { phase } = Astro.props;
+const randomId = Date.now();
 ---
 
 <li
   class="group flex items-center gap-2 overflow-hidden rounded-md p-2 hover:bg-slate-300 dark:hover:bg-slate-600"
-  data-id={phase?.id ?? "new"}
+  data-id={phase?.id ?? "new-" + randomId}
   x-data=`{ duration: ${phase?.duration ?? 0}, name: '${phase?.name ?? "New"}', dragging: false }`
   x-ref="draggable"
   x-on:dragstart.self="event.dataTransfer.effectAllowed = 'move'; event.dataTransfer.setData('text/plain', event.target.dataset.id); dragging = true"
@@ -22,9 +23,12 @@ const { phase } = Astro.props;
   :class="dragging && 'opacity-30'"
 >
   <input
-    name=`name:${phase?.id}`
+    name=`${phase?.id ?? 'new-' + randomId}:name`
     x-model="name"
     class="min-w-0 shrink bg-transparent"
+    x-on:keydown.down="if (duration > 0) duration--"
+    x-on:keydown.up="duration++"
+    autofocus
   />
 
   <div class="ml-auto flex items-center rounded-lg">
@@ -48,7 +52,7 @@ const { phase } = Astro.props;
     </button>
     <input
       class="w-8 border-0 bg-transparent p-0 text-center focus:ring-0"
-      name=`duration:${phase?.id}`
+      name=`${phase?.id ?? 'new-' + randomId}:duration`
       x-model="duration"
       x-on:keydown.down="if (duration > 0) duration--"
       x-on:keydown.up="duration++"
@@ -73,6 +77,27 @@ const { phase } = Astro.props;
       >
     </button>
   </div>
+
+  <button
+    type="button"
+    class="inline-flex h-6 w-6 items-center justify-center gap-x-2 rounded-full text-sm font-medium text-red-400 shadow-sm disabled:pointer-events-none disabled:opacity-50 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600"
+    x-on:click="$el.closest('li').remove()"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+    >
+      <line x1="18" x2="6" y1="6" y2="18"></line>
+      <line x1="6" x2="18" y1="6" y2="18"></line>
+    </svg>
+  </button>
 
   <button
     class="text-gray-400"

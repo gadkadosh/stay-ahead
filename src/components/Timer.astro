@@ -48,7 +48,7 @@ const { scenario } = Astro.props;
 >
   <p
     class="my-4 text-xl font-normal text-gray-500 sm:px-16 lg:text-3xl xl:px-48"
-    x-text="state !== 'done' ? scenario.phases[$store.curPhase].name : 'DONE'"
+    x-text="state !== 'done' ? scenario.phases[$store.curPhase]?.name : 'DONE'"
   >
   </p>
   <div class="flex items-center justify-center gap-4">
@@ -94,7 +94,7 @@ const { scenario } = Astro.props;
           stroke-width="30"
           fill="transparent"
           :stroke-dasharray="circumference"
-          :stroke-dashoffset="circumference - (seconds / scenario.phases[$store.curPhase].duration) * circumference"
+          :stroke-dashoffset="circumference - (seconds / scenario.phases[$store.curPhase]?.duration) * circumference"
           class="text-blue-500"
           :class="{'transition-all duration-100 ease-linear': state === 'running'}"
         ></circle>
@@ -131,7 +131,7 @@ const { scenario } = Astro.props;
   </div>
   <p
     class="mt-2 text-sm font-normal text-gray-500 dark:text-gray-600 sm:px-16 lg:text-base xl:px-48"
-    :class="scenario.phases[$store.curPhase].duration !== 0 && 'opacity-0'"
+    :class="scenario.phases[$store.curPhase]?.duration !== 0 && 'opacity-0'"
   >
     Manually advance to the next phase
   </p>

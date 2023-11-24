@@ -1,23 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  text,
-  integer,
-  sqliteTable,
-  index,
-  primaryKey,
-} from "drizzle-orm/sqlite-core";
-
-export const phases = sqliteTable(
-  "phases",
-  {
-    id: integer("id").primaryKey({ autoIncrement: true }),
-    name: text("name"),
-    duration: integer("duration"),
-  },
-  (table) => ({
-    idIdx: index("id_idx").on(table.id),
-  }),
-);
+import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 
 export const scenarios = sqliteTable(
   "scenarios",
@@ -26,45 +8,33 @@ export const scenarios = sqliteTable(
     name: text("name"),
   },
   (table) => ({
-    idIdx: index("id_idx").on(table.id),
+    idIdx: index("scenario_id_idx").on(table.id),
   }),
 );
 
-export const phaseToScenario = sqliteTable(
-  "phase_to_scenario",
+export const phases = sqliteTable(
+  "phases",
   {
-    phaseId: integer("phase_id")
-      .notNull()
-      .references(() => phases.id),
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    duration: integer("duration").notNull(),
+    position: integer("position").notNull(),
     scenarioId: integer("scenario_id")
       .notNull()
       .references(() => scenarios.id),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.phaseId, table.scenarioId] }),
-    phaseIdIdx: index("phase_id_idx").on(table.phaseId),
-    scenarioIdIdx: index("scenario_id_idx").on(table.scenarioId),
+    idIdx: index("phase_id_idx").on(table.id),
   }),
 );
 
-export const phasesRelations = relations(phases, ({ many }) => ({
-  scenarios: many(scenarios),
+export const phasesRelations = relations(phases, ({ one }) => ({
+  scenario: one(scenarios, {
+    fields: [phases.scenarioId],
+    references: [scenarios.id],
+  }),
 }));
 
 export const scenariosRelations = relations(scenarios, ({ many }) => ({
   phases: many(phases),
 }));
-
-export const phaseToScenarioRelations = relations(
-  phaseToScenario,
-  ({ one }) => ({
-    phase: one(phases, {
-      fields: [phaseToScenario.phaseId],
-      references: [phases.id],
-    }),
-    scenario: one(scenarios, {
-      fields: [phaseToScenario.scenarioId],
-      references: [scenarios.id],
-    }),
-  }),
-);

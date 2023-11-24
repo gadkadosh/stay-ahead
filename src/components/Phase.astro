@@ -2,7 +2,7 @@
 import type { Phase } from "@/data/types";
 
 interface Props {
-  phase: Phase;
+  phase: Phase | null;
   order: number;
 }
 
@@ -15,6 +15,6 @@ const { phase, order } = Astro.props;
   x-on:click="$dispatch('stayahead:changephase', { phaseIdx: +$el.dataset.order })"
   :class=`${order} === $store.curPhase && 'bg-slate-200 dark:bg-slate-700'`
 >
-  <span>{phase.name}</span>
-  <span>{phase.duration ? phase.duration + "s" : "Manual"}</span>
+  <span>{phase?.name}</span>
+  <span>{phase?.duration ? phase.duration + "s" : "Manual"}</span>
 </li>

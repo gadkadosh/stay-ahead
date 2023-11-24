@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
-import { eq } from "drizzle-orm";
+import { eq, notInArray, and, sql, type InferInsertModel } from "drizzle-orm";
 import * as schema from "./schema";
 import type { ScenarioWithPhases } from "./types";
 
@@ -22,16 +22,10 @@ export async function getScenarioWithPhases(id: number) {
         duration: schema.phases.duration,
       },
     })
-    .from(schema.phaseToScenario)
-    .where(eq(schema.phaseToScenario.scenarioId, id))
-    .leftJoin(
-      schema.scenarios,
-      eq(schema.phaseToScenario.scenarioId, schema.scenarios.id),
-    )
-    .leftJoin(
-      schema.phases,
-      eq(schema.phaseToScenario.phaseId, schema.phases.id),
-    );
+    .from(schema.scenarios)
+    .where(eq(schema.scenarios.id, id))
+    .leftJoin(schema.phases, eq(schema.phases.scenarioId, schema.scenarios.id))
+    .orderBy(schema.phases.position);
 
   return res.reduce(
     (acc, cur) => ({
@@ -53,38 +47,37 @@ export async function getScenarios() {
     .from(schema.scenarios);
 }
 
-export async function getPhase(id: number) {
-  return (
-    await db
-      .select({
-        id: schema.phases.id,
-        name: schema.phases.name,
-        duration: schema.phases.duration,
-      })
-      .from(schema.phases)
-      .where(eq(schema.phases.id, id))
-      .limit(1)
-  )[0];
+export async function upsertPhases(
+  items: InferInsertModel<typeof schema.phases>[],
+) {
+  return await db
+    .insert(schema.phases)
+    .values(items)
+    .onConflictDoUpdate({
+      target: schema.phases.id,
+      set: {
+        name: sql`excluded.name`,
+        duration: sql`excluded.duration`,
+        position: sql`excluded.position`,
+        scenarioId: sql`excluded.scenario_id`,
+      },
+    })
+    .returning({
+      id: schema.phases.id,
+      name: schema.phases.name,
+      duration: schema.phases.duration,
+      position: schema.phases.position,
+      scenarioId: schema.phases.scenarioId,
+    });
 }
 
-export async function updatePhase({
-  id,
-  duration,
-}: {
-  id: number;
-  duration: number;
-}) {
-  return (
-    await db
-      .update(schema.phases)
-      .set({
-        duration,
-      })
-      .where(eq(schema.phases.id, id))
-      .returning({
-        id: schema.phases.id,
-        name: schema.phases.name,
-        duration: schema.phases.duration,
-      })
-  )[0];
+export async function deletePhases(scenarioId: number, exclude: number[]) {
+  await db
+    .delete(schema.phases)
+    .where(
+      and(
+        notInArray(schema.phases.id, exclude),
+        eq(schema.phases.scenarioId, scenarioId),
+      ),
+    );
 }

@@ -1,14 +1,35 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "fed2c84a-95e8-4234-99b7-4fd9bd99d252",
+  "id": "2edef12d-b9cf-4cc1-9b67-fef666cbc1d0",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "phase_to_scenario": {
-      "name": "phase_to_scenario",
+    "phases": {
+      "name": "phases",
       "columns": {
-        "phase_id": {
-          "name": "phase_id",
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "position": {
+          "name": "position",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -26,35 +47,15 @@
         "phase_id_idx": {
           "name": "phase_id_idx",
           "columns": [
-            "phase_id"
-          ],
-          "isUnique": false
-        },
-        "scenario_id_idx": {
-          "name": "scenario_id_idx",
-          "columns": [
-            "scenario_id"
+            "id"
           ],
           "isUnique": false
         }
       },
       "foreignKeys": {
-        "phase_to_scenario_phase_id_phases_id_fk": {
-          "name": "phase_to_scenario_phase_id_phases_id_fk",
-          "tableFrom": "phase_to_scenario",
-          "tableTo": "phases",
-          "columnsFrom": [
-            "phase_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "phase_to_scenario_scenario_id_scenarios_id_fk": {
-          "name": "phase_to_scenario_scenario_id_scenarios_id_fk",
-          "tableFrom": "phase_to_scenario",
+        "phases_scenario_id_scenarios_id_fk": {
+          "name": "phases_scenario_id_scenarios_id_fk",
+          "tableFrom": "phases",
           "tableTo": "scenarios",
           "columnsFrom": [
             "scenario_id"
@@ -66,52 +67,6 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "phase_to_scenario_phase_id_scenario_id_pk": {
-          "columns": [
-            "phase_id",
-            "scenario_id"
-          ],
-          "name": "phase_to_scenario_phase_id_scenario_id_pk"
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "phases": {
-      "name": "phases",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "duration": {
-          "name": "duration",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "id_idx": {
-          "name": "id_idx",
-          "columns": [
-            "id"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
@@ -134,8 +89,8 @@
         }
       },
       "indexes": {
-        "id_idx": {
-          "name": "id_idx",
+        "scenario_id_idx": {
+          "name": "scenario_id_idx",
           "columns": [
             "id"
           ],
